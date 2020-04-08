@@ -21,9 +21,10 @@ received=1827
 scroll_count = 0
 
 
-u = config('u2')
-p = config('p2')
+u = config('u')
+p = config('p')
 url = config('base_url')
+fname = config('save_to')
 
 working_dir= os.path.dirname(os.path.dirname(os.path.realpath(__file__)).replace('\\','/'))
 output_file = os.path.normpath(working_dir + f"/csv/{fname}.csv")

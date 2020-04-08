@@ -26,18 +26,23 @@ working_dir= os.path.dirname(os.path.dirname(os.path.realpath(__file__)).replace
 
 u = config('u')
 p = config('p')
-fname = config('fname')
+fname = config('save_to')
 url = config('url')
 
 output_file = os.path.normpath(working_dir + f"/csv/{fname}.csv")
 
-Connector = WC()
+Connector = WC(url)
 
-sign_in_path = '//a[text()="Sign in"]'
-Connector.click_target(sign_in_path, kind='s', by='xpath')
+# Clickable paths
+sign_in_path = {
+	"path": '//a[text()="Sign in"]',
+	"by": 'xpath'
+}
+login_button = '//button[text()="Sign in"]'
 
-Connector.click_target(sign_in_path, kind='s', by='xpath')
-Connector.login(u, p, "username", "password", '//button[text()="Sign in"]')
+Connector.click_target(sign_in_path, kind='s')
+
+Connector.login(u, p, "username", "password", login_button)
 # Connector.goto_url("https://www.linkedin.com/feed/update/urn:li:activity:6382659653465145344/?commentUrn=urn%3Ali%3Acomment%3A(activity%3A6382659653465145344%2C6385031549317898240)")
 # Connector.goto_url("https://www.linkedin.com/feed/update/activity:6402141301369856000/")
 # Connector.goto_url("https://www.linkedin.com/posts/saloni-barelia-60611180_campusplacements-panindia-autogram-activity-6580352476703223808-joJn/")
@@ -70,7 +75,7 @@ while not (recent_comments_clicked and sort_button_clicked):
 
 Connector.scroll_to_bottom()
 clicked_show_more = load_more_element = Connector.click_target(show_more_id, by="xpath", kind="new")
-show_more_exists = Connector.check_if_element_exists(show_more_id, by="xpath", kind="new")
+show_more_exists = Connector.check_if_element_exists(show_more_id, by="xpath")
 print(f"Clicked Show more - {clicked_show_more}")
 print(f"Show more exists - {show_more_exists}")
 while not clicked_show_more:

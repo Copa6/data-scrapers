@@ -34,43 +34,55 @@ class WebConnect():
 		# driver = webdriver.Firefox()
 		return driver
 		
+	def extract_target_info(self, target, by):
+		if isinstance(target, dict):
+			path = target["path"]
+			by = target["by"]
+		else:
+			path = target
+			by = by
+		return path, by
 
-	def load_element(self, target, by, kind):
+	def load_element(self, target, by=None, kind="new"):
 		elem = None
 		i=0
+		
+		path, by = self.extract_target_info(target, by)
 		delay = 5 if kind=="new" else 2
 		while((elem is None) and (i<delay)):
 			try:
 				if by=="xpath":
-					elem = self.driver.find_element_by_xpath(target)
+					elem = self.driver.find_element_by_xpath(path)
 				elif by=="id":
-					elem = self.driver.find_element_by_id(target)
+					elem = self.driver.find_element_by_id(path)
 				elif by=="link_text":
-					elem = self.driver.find_element_by_link_text(target)
+					elem = self.driver.find_element_by_link_text(path)
 				elif by=="name":
-					elem = self.driver.find_element_by_name(target)
+					elem = self.driver.find_element_by_name(path)
 			except:
 				time.sleep(1)
 				i +=1
 		return(elem)
 
-	def check_if_element_exists(self, target, by, kind):
+	def check_if_element_exists(self, target, by=None):
 		elem = None
+		path, by = self.extract_target_info(target, by)
 		try:
 			if by=="xpath":
-				elem = self.driver.find_element_by_xpath(target)
+				elem = self.driver.find_element_by_xpath(path)
 			elif by=="id":
-				elem = self.driver.find_element_by_id(target)
+				elem = self.driver.find_element_by_id(path)
 			elif by=="link_text":
-				elem = self.driver.find_element_by_link_text(target)
+				elem = self.driver.find_element_by_link_text(path)
 			elif by=="name":
-				elem = self.driver.find_element_by_name(target)
+				elem = self.driver.find_element_by_name(path)
 
 		except:
 			time.sleep(1)
 		return elem
 
-	def load_elements(self, target, by, kind):
+	def load_elements(self, target, by=None, kind="new"):
+		path, by = self.extract_target_info(target, by)
 		elem = None
 		i=0
 		delay = 5 if kind=="new" else 2
@@ -112,7 +124,7 @@ class WebConnect():
 		elem_search.send_keys(Keys.ENTER)
 
 	
-	def click_target(self, target, by, kind):
+	def click_target(self, target, by=None, kind="new"):
 		elem = self.load_element(target, by, kind)
 		if elem is not None:
 			try:
@@ -125,7 +137,7 @@ class WebConnect():
 			return False
 
 
-	def get_target_html(self, target=None, by='', kind='', loaded_element=None):
+	def get_target_html(self, target=None, by=None, kind='new', loaded_element=None):
 		if loaded_element is None:
 			elem = self.load_element(target, by, kind)
 		else:
@@ -136,7 +148,7 @@ class WebConnect():
 			return 0
 
 
-	def get_target_text(self, target, by, kind):
+	def get_target_text(self, target, by=None, kind="new"):
 		elem = self.load_element(target, by, kind)
 		if elem is not None:
 			return elem.get_attribute("innerHTML").strip().lstrip().replace("\n", " ")
@@ -144,7 +156,7 @@ class WebConnect():
 			return 0
 
 
-	def write_to_div(self, message, target, by, kind):
+	def write_to_div(self, message, target, by=None, kind="new"):
 		elem = self.load_element(target, by, kind)
 		if elem is not None:
 			action = webdriver.ActionChains(self.driver)
