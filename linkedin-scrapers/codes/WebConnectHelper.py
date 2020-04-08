@@ -102,18 +102,19 @@ class WebConnect():
 		return(elem)
 
 
-	def login(self, username, password, id_u, id_p, id_sub):
+	def login(self, username, password, id_u, id_p, submit_button=None):
 		elem_login = self.driver.find_element_by_id(id_u)
 		elem_pw = self.driver.find_element_by_id(id_p)
-		# elem_submit = self.driver.find_element_by_id(id_sub)
-		elem_submit = self.driver.find_elements_by_xpath(id_sub)
 
 		elem_login.clear()
 		elem_pw.clear()
 
 		elem_login.send_keys(username)
 		elem_pw.send_keys(password)
-		elem_pw.send_keys(Keys.ENTER)
+		if submit_button:
+			self.click_target(submit_button)
+		else:
+			elem_pw.send_keys(Keys.ENTER)
 		print("logged in")
 
 	

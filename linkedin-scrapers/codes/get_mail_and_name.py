@@ -34,69 +34,66 @@ output_file = os.path.normpath(working_dir + f"/csv/{fname}.csv")
 Connector = WC(url)
 
 # Clickable paths
-sign_in_path = {
-	"path": '//a[text()="Sign in"]',
-	"by": 'xpath'
+sign_in_button = {"path": '//a[text()="Sign in"]', "by": 'xpath'}
+login_button = {"path": '//button[text()="Sign in"]', "by": 'xpath'}
+sort_button = {"path": '//*[text()="Most Relevant"]', "by": 'xpath'}
+show_more_button = {"path": '//*[text()="Load more comments"]', "by": 'xpath'}
+recent_comments_button = {"path": '//*[text()="Most Recent"]', "by": 'xpath'}
+user_name_element = {"path": '//span[@class="hoverable-link-text"]', "by": 'xpath'}
+mail_comment_element = {
+"path": '//div[contains(@class,"comments-comment-item__inline-show-more-text feed-shared-inline-show-more-text ember-view")]/p',
+"by": 'xpath'
 }
-login_button = '//button[text()="Sign in"]'
 
-Connector.click_target(sign_in_path, kind='s')
-
+Connector.click_target(sign_in_button, kind='s')
 Connector.login(u, p, "username", "password", login_button)
-# Connector.goto_url("https://www.linkedin.com/feed/update/urn:li:activity:6382659653465145344/?commentUrn=urn%3Ali%3Acomment%3A(activity%3A6382659653465145344%2C6385031549317898240)")
-# Connector.goto_url("https://www.linkedin.com/feed/update/activity:6402141301369856000/")
-# Connector.goto_url("https://www.linkedin.com/posts/saloni-barelia-60611180_campusplacements-panindia-autogram-activity-6580352476703223808-joJn/")
 
+# name
+# mail_comment_path = '//div[contains(@class,"comments-comment-item__inline-show-more-text feed-shared-inline-show-more-text ember-view")]/p'
 
-sort_button_path = '//*[text()="Most Relevant"]'
-recent_comments_path = '//*[text()="Most Recent"]'
-name_path = '//span[@class="hoverable-link-text"]'
-mail_comment_path = '//div[contains(@class,"comments-comment-item__inline-show-more-text feed-shared-inline-show-more-text ember-view")]/p'
-
-
-
+# Wait for the page to load before performing next action
 time.sleep(3)
 
-show_more_id = '//*[text()="Load more comments"]'
-sort_button_clicked = Connector.click_target(sort_button_path, kind='new', by="xpath")
-recent_comments_clicked = Connector.click_target(recent_comments_path, kind='new', by="xpath")
+sort_button_clicked = Connector.click_target(sort_button)
+recent_comments_clicked = Connector.click_target(recent_comments_button)
+print(f"Clicked Sort button successfully - {sort_button_clicked}")
+print(f"Clicked Recent button successfully - {recent_comments_clicked}")
 
-
-print(f"Clicked Sort button - {sort_button_clicked}")
-print(f"Clicked Recent button - {recent_comments_clicked}")
-
+# If the clicks are not successful, wait and try clicking again to get comments in the right order
 while not (recent_comments_clicked and sort_button_clicked):
 	time.sleep(3)
-	sort_button_clicked = Connector.click_target(sort_button_path, kind='s', by="xpath")
-	recent_comments_clicked = Connector.click_target(recent_comments_path, kind='s', by="xpath")
-	# clicked_show_more = load_more_element = Connector.click_target(show_more_id, by="xpath", kind="new")
-	print(f"Clicked Sort button - {sort_button_clicked}")
-	print(f"Clicked Recent button - {recent_comments_clicked}")
+	sort_button_clicked = Connector.click_target(sort_button, kind='search')
+	recent_comments_clicked = Connector.click_target(recent_comments_button, kind='search')
+	print(f"Clicked Sort button successfully - {sort_button_clicked}")
+	print(f"Clicked Recent button successfully - {recent_comments_clicked}")
+
 
 Connector.scroll_to_bottom()
-clicked_show_more = load_more_element = Connector.click_target(show_more_id, by="xpath", kind="new")
-show_more_exists = Connector.check_if_element_exists(show_more_id, by="xpath")
-print(f"Clicked Show more - {clicked_show_more}")
-print(f"Show more exists - {show_more_exists}")
+clicked_show_more = Connector.click_target(show_more_button) 
+show_more_exists = Connector.check_if_element_exists(show_more_button)
+print(f"Clicked Show more successfully - {clicked_show_more}")
+print(f"Show more exists successfully - {show_more_exists}")
+
+# If unable to click show more after sorting comments, wait and retry
 while not clicked_show_more:
 	time.sleep(1)
 	Connector.scroll_to_bottom()
 	print("Could not click show more. Re Click")
-	clicked_show_more = load_more_element = Connector.click_target(show_more_id, by="xpath", kind="new")
+	clicked_show_more = Connector.click_target(show_more_button, kind="search") 
 
+# Continue clicking the "Load more comments" link, till all comments are loaded
 while(clicked_show_more or show_more_exists):
 	try:
-		clicked_show_more = load_more_element = Connector.click_target(show_more_id, by="xpath", kind="new")
+		clicked_show_more = Connector.click_target(show_more_button)
 		Connector.scroll_to_bottom()
-		show_more_exists = Connector.check_if_element_exists(show_more_id, by="xpath", kind="new")
-	except:
-		print('Loaded all comments')
-	# Connector.scroll_page_down()
+		show_more_exists = Connector.check_if_element_exists(show_more_button)
+	except Exception as e:
+		print(e)
+		pass
+print('Loaded all comments')
 
-all_names = Connector.load_elements(name_path, by="xpath", kind="new")
-all_emails = Connector.load_elements(mail_comment_path, by="xpath", kind="new")
-
-# print(all_names)
+all_names = Connector.load_elements(user_name_element)
+all_emails = Connector.load_elements(mail_comment_element)
 
 if all_names is not None:
 	for i, name in enumerate(all_names):
